@@ -1,9 +1,10 @@
 {
   "required": true,
   "package": "com.gitlab.essentialmods.fabricautocrafter.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "CraftingInventoryMixin"
+    "CraftingInventoryMixin",
+    "MixinHopperBlockEntity"
   ],
   "injectors": {
     "defaultRequire": 1
