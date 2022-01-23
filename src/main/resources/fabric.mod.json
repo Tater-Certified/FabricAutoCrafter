@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "autocrafter",
+  "version": "${version}",
+  "name": "FabricAutoCrafter",
+  "description": "Adds the AutoCrafter block",
+  "authors": [
+    "Jneos",
+    "QPCrummer"
+  ],
+  "license": "GPL-3.0",
+  "icon": "assets/modid/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.gitlab.essentialmods.fabricautocrafter.AutoCrafterMod"
+    ]
+  },
+  "mixins": [
+    "autocrafter.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.18.x",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

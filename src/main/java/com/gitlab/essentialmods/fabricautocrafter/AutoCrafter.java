@@ -1,0 +1,102 @@
+package com.gitlab.essentialmods.fabricautocrafter;
+
+import eu.pb4.polymer.api.block.PolymerBlock;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.stat.Stats;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
+import org.jetbrains.annotations.Nullable;
+
+import static net.minecraft.block.Blocks.CRAFTING_TABLE;
+
+public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
+
+    protected AutoCrafter() {
+        super(FabricBlockSettings.of(Material.WOOD));
+    }
+
+
+    @Override
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (world.isClient) {
+            return ActionResult.SUCCESS;
+        } else if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity entity) {
+            player.openHandledScreen(entity);
+            player.incrementStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
+        }
+        return ActionResult.CONSUME;
+    }
+
+    @Override
+    public Block getPolymerBlock(BlockState state) {
+        return CRAFTING_TABLE;
+    }
+
+    @Override
+    public boolean hasComparatorOutput(BlockState state) {
+        System.out.println("AutoCrafter.hasComparatorOutput");
+        return state.hasBlockEntity();
+    }
+
+    @Override
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+        System.out.println("AutoCrafter.getComparatorOutput");
+        if (!state.hasBlockEntity()) return 0;
+        if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity craftingTableBlockEntity) {
+            int filled = 0;
+            for (ItemStack stack : craftingTableBlockEntity.inventory) {
+                if (!stack.isEmpty()) filled++;
+            }
+            return (filled * 15) / 9;
+        }
+        return 0;
+    }
+
+
+    @Override
+    public void onStateReplaced(BlockState oldState, World world, BlockPos pos, BlockState newState, boolean moved) {
+        System.out.println("AutoCrafter.onStateReplaced");
+        if (oldState.getBlock() != newState.getBlock()) {
+            if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity entity) {
+                ItemScatterer.spawn(world, pos, entity.inventory);
+                if (!entity.output.isEmpty()) {
+                    ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), entity.output);
+                }
+                world.updateNeighborsAlways(pos, this);
+            }
+            world.removeBlockEntity(pos);
+
+            super.onStateReplaced(oldState, world, pos, newState, moved);
+        }
+    }
+
+    @Override
+    public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
+        System.out.println("AutoCrafter.onDestroyedByExplosion");
+        if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity entity) {
+            ItemScatterer.spawn(world, pos, entity.inventory);
+            if (!entity.output.isEmpty()) {
+                ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), entity.output);
+            }
+        }
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        System.out.println("AutoCrafter.createBlockEntity");
+        return state.isOf(AutoCrafterMod.BLOCK) ? new CraftingTableBlockEntity(pos, state) : null;
+    }
+}
