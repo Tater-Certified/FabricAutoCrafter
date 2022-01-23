@@ -18,7 +18,7 @@ public class AutoCrafterMod implements ModInitializer {
 
     public static final String MODID = "autocrafter";
     public static final Identifier IDENTIFIER = new Identifier(MODID, "autocrafter");
-    public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.of(Material.WOOD).strength(2.5f,2.5f));
+    public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.of(Material.WOOD).strength(2.5f, 2.5f));
     public static final BlockItem ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE.setNoScrollbar()), Items.CRAFTING_TABLE);
     public static final BlockEntityType<CraftingTableBlockEntity> TYPE = FabricBlockEntityTypeBuilder.create(CraftingTableBlockEntity::new, BLOCK).build(null);
 
