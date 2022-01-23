@@ -44,9 +44,6 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
         ((CraftingInventoryMixin) craftingInventory).setInventory(this.inventory);
     }
 
-    public static void init() {
-    }
-
     public CraftingInventory boundCraftingInventory(ScreenHandler handler) {
         ((CraftingInventoryMixin) craftingInventory).setHandler(handler);
         return craftingInventory;
