@@ -12,6 +12,7 @@ group = project.maven_group
 
 repositories {
     maven { url 'https://maven.nucleoid.xyz' }
+    maven { url 'https://masa.dy.fi/maven'}
 }
 
 dependencies {
@@ -22,6 +23,7 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "carpet:fabric-carpet:${project.carpet_core_version}"
     modImplementation include("eu.pb4:polymer:0.2.0-beta.18+1.18.1")
 }
 
