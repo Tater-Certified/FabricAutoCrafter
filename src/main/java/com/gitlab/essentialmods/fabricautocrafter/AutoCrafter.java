@@ -23,7 +23,7 @@ import static net.minecraft.block.Blocks.CRAFTING_TABLE;
 
 public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
 
-    protected AutoCrafter() {
+    protected AutoCrafter(FabricBlockSettings strength) {
         super(FabricBlockSettings.of(Material.WOOD));
     }
 

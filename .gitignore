@@ -21,3 +21,36 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+*.lock
+*.bin
+*.pom
+.idea/vcs.xml
+.idea/runConfigurations/Minecraft_Server.xml
+.idea/runConfigurations/Minecraft_Client.xml
+.idea/misc.xml
+.idea/jarRepositories.xml
+.idea/gradle.xml
+.idea/compiler.xml
+.gradle/vcs-1/gc.properties
+.gradle/loom-cache/remapClasspath.txt
+.gradle/loom-cache/log4j.xml
+.gradle/loom-cache/launch.cfg
+.gradle/file-system.probe
+.gradle/buildOutputCleanup/cache.properties
+.gradle/7.3.2/gc.properties
+.gradle/7.3.2/dependencies-accessors/gc.properties
+.gradle/7.3.1/gc.properties
+.gradle/7.3.1/dependencies-accessors/gc.properties
+build/classes/java/main/fabricautocrafter-refmap.json
+build/loom-cache/mixin-map-net.fabricmc.yarn.1_18_1.1.18.1+build.22-v2.1.tiny
+build/resources/main/assets/autocrafter/data/FabricAutoCrafter/loot_tables/blocks/autocrafter.json
+build/resources/main/assets/autocrafter/data/FabricAutoCrafter/recipes/autocrafter.json
+build/resources/main/assets/autocrafter/icon.png
+build/resources/main/autocrafter.mixins.json
+build/resources/main/fabric.mod.json
+.idea/misc.xml
+.idea/gradle.xml
+.idea/vcs.xml
+.idea/misc.xml
+.idea/gradle.xml
+.idea/vcs.xml
