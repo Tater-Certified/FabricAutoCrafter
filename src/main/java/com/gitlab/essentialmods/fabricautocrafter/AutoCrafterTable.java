@@ -1,8 +1,7 @@
 package com.gitlab.essentialmods.fabricautocrafter;
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
-public class AutoCrafterTable implements CarpetExtension
-{
+public class AutoCrafterTable implements CarpetExtension {
     public static void noop() { }
     static
     {
