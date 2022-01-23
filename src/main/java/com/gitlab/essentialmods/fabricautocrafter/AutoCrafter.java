@@ -24,9 +24,8 @@ import static net.minecraft.block.Blocks.CRAFTING_TABLE;
 public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
 
     protected AutoCrafter(FabricBlockSettings strength) {
-        super(FabricBlockSettings.of(Material.WOOD));
+        super(FabricBlockSettings.of(Material.METAL).strength(2.5f, 2.5f));
     }
-
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
