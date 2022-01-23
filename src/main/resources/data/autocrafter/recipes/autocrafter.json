@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "WWW",
-    "WRW ",
+    "WRW",
     "WWW"
   ],
   "key": {
     "W": {
-      "tag": "minecraft:redstone"
+      "item": "minecraft:redstone"
     },
     "R": {
       "item": "minecraft:crafting_table"
@@ -15,6 +15,5 @@
   },
   "result": {
     "item": "autocrafter:autocrafter",
-    "count": 1
   }
 }
