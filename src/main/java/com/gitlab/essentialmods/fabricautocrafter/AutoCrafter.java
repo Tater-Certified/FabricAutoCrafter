@@ -5,7 +5,6 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -23,8 +22,8 @@ import static net.minecraft.block.Blocks.CRAFTING_TABLE;
 
 public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
 
-    protected AutoCrafter(FabricBlockSettings strength) {
-        super(FabricBlockSettings.of(Material.METAL).strength(2.5f, 2.5f));
+    protected AutoCrafter(FabricBlockSettings blockSettings) {
+        super(blockSettings);
     }
 
     @Override
