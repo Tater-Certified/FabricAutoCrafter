@@ -6,7 +6,8 @@
   "description": "Adds the AutoCrafter block",
   "authors": [
     "Jneos",
-    "QPCrummer"
+    "QPCrummer",
+    "KJP12"
   ],
   "license": "GPL-3.0",
   "icon": "assets/modid/icon.png",
