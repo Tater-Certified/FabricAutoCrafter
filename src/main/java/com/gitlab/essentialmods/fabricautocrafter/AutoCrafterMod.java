@@ -1,5 +1,6 @@
 package com.gitlab.essentialmods.fabricautocrafter;
 
+import eu.pb4.polymer.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.api.item.PolymerBlockItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -26,5 +27,6 @@ public class AutoCrafterMod implements ModInitializer {
         Registry.register(Registry.BLOCK, IDENTIFIER, BLOCK);
         Registry.register(Registry.ITEM, IDENTIFIER, ITEM);
         Registry.register(Registry.BLOCK_ENTITY_TYPE, IDENTIFIER, TYPE);
+        PolymerBlockUtils.registerBlockEntity(TYPE);
     }
 }
