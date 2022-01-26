@@ -3,6 +3,7 @@
   "package": "com.gitlab.essentialmods.fabricautocrafter.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AccessorScreenHandler",
     "CraftingInventoryMixin",
     "MixinHopperBlockEntity"
   ],
