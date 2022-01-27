@@ -1,5 +1,6 @@
 package com.gitlab.essentialmods.fabricautocrafter;
 
+import com.gitlab.essentialmods.fabricautocrafter.mixin.AccessorScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
@@ -26,7 +27,11 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
 
         this.crafting_inv = blockEntity.boundCraftingInventory(this);
 
+        var self = (AccessorScreenHandler) this;
         slots.clear();
+        self.getTrackedStacks().clear();
+        self.getPreviousTrackedStacks().clear();
+
         this.addSlot(new OutputSlot(this.blockEntity, this.player));
 
         for (int y = 0; y < 3; ++y) {
