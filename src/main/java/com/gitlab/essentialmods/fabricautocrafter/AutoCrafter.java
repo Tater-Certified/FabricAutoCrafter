@@ -44,13 +44,11 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
 
     @Override
     public boolean hasComparatorOutput(BlockState state) {
-        System.out.println("AutoCrafter.hasComparatorOutput");
         return state.hasBlockEntity();
     }
 
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        System.out.println("AutoCrafter.getComparatorOutput");
         if (!state.hasBlockEntity()) return 0;
         if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity craftingTableBlockEntity) {
             int filled = 0;
@@ -65,7 +63,6 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
 
     @Override
     public void onStateReplaced(BlockState oldState, World world, BlockPos pos, BlockState newState, boolean moved) {
-        System.out.println("AutoCrafter.onStateReplaced");
         if (oldState.getBlock() != newState.getBlock()) {
             if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity entity) {
                 ItemScatterer.spawn(world, pos, entity.inventory);
@@ -82,7 +79,6 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
 
     @Override
     public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
-        System.out.println("AutoCrafter.onDestroyedByExplosion");
         if (world.getBlockEntity(pos) instanceof CraftingTableBlockEntity entity) {
             ItemScatterer.spawn(world, pos, entity.inventory);
             if (!entity.output.isEmpty()) {
@@ -94,7 +90,6 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        System.out.println("AutoCrafter.createBlockEntity");
         return state.isOf(AutoCrafterMod.BLOCK) ? new CraftingTableBlockEntity(pos, state) : null;
     }
 }
