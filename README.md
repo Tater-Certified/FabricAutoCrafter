@@ -12,3 +12,4 @@ Features that differ from Gnembon's mod:
 - Fixes a recipe book issue
 - Fixes item filters not workingd
 - Adds a recipe for the Auto Crafter
+- Fixes an out-of-bounds exception
