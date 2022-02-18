@@ -34,8 +34,8 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
 
         this.addSlot(new OutputSlot(this.blockEntity, this.player));
 
-        for (int y = 0; y < 3; ++y) {
-            for (int x = 0; x < 3; ++x) {
+        for(int y = 0; y < 3; ++y) {
+            for(int x = 0; x < 3; ++x) {
                 this.addSlot(new Slot(this.blockEntity, x + y * 3 + 1, 30 + x * 18, 17 + y * 18));
             }
         }
@@ -64,9 +64,7 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         if (slot == 0) {
             ItemStack before = this.blockEntity.getStack(0).copy();
             ItemStack current = before.copy();
-            if (!this.insertItem(current, 10, 46, true)) {
-                return ItemStack.EMPTY;
-            }
+            if (!this.insertItem(current, 10, 46, true)) return ItemStack.EMPTY;
             this.blockEntity.removeStack(0, before.getCount() - current.getCount());
             slots.get(0).onQuickTransfer(current, before); // calls onCrafted if different
             return this.blockEntity.getStack(0);
@@ -116,7 +114,6 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
 
     private class OutputSlot extends Slot {
         private final PlayerEntity player;
-
         OutputSlot(Inventory inv, PlayerEntity player) {
             super(inv, 0, 124, 35);
             this.player = player;
@@ -134,15 +131,9 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
 
         @Override
         protected void onCrafted(ItemStack stack, int amount) {
-            super.onCrafted(stack);
-            // from CraftingResultsSlot onCrafted
-            if (amount > 0) {
-                stack.onCraft(this.player.world, this.player, amount);
-            }
-
-            if (this.inventory instanceof RecipeUnlocker) {
-                ((RecipeUnlocker) this.inventory).unlockLastRecipe(this.player);
-            }
+            super.onCrafted(stack); // from CraftingResultsSlot onCrafted
+            if (amount > 0) stack.onCraft(this.player.world, this.player, amount);
+            if (this.inventory instanceof RecipeUnlocker) ((RecipeUnlocker)this.inventory).unlockLastRecipe(this.player);
         }
 
         @Override
