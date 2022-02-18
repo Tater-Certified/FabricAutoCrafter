@@ -19,6 +19,7 @@ import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import static net.minecraft.util.math.Direction.DOWN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,8 +78,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     public int[] getAvailableSlots(Direction dir) {
-        if (dir == Direction.DOWN && (!output.isEmpty() || getCurrentRecipe().isPresent())) return OUTPUT_SLOTS;
-        return INPUT_SLOTS;
+        return (dir == DOWN && (!output.isEmpty() || getCurrentRecipe().isPresent())) ? OUTPUT_SLOTS : INPUT_SLOTS;
     }
 
     @Override
@@ -88,13 +88,12 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        if (slot == 0) return !output.isEmpty() || getCurrentRecipe().isPresent();
-        return true;
+        return slot != 0 || !output.isEmpty() || getCurrentRecipe().isPresent();
     }
 
     @Override
     public boolean isValid(int slot, ItemStack stack) {
-        return slot != 0;
+        return slot != 0 && slot <= size();
     }
 
     @Override
@@ -121,9 +120,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     @Override
     public ItemStack removeStack(int slot, int amount) {
         if (slot == 0) {
-            if (output.isEmpty()) {
-                output = craft();
-            }
+            if (output.isEmpty()) output = craft();
             return output.split(amount);
         }
         return Inventories.splitStack(this.inventory, slot - 1, amount);
@@ -146,6 +143,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
             return;
         }
         inventory.set(slot - 1, stack);
+        markDirty();
     }
 
     @Override
@@ -156,11 +154,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
-        if (this.world.getBlockEntity(this.pos) != this) {
-            return false;
-        } else {
-            return player.squaredDistanceTo((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
-        }
+        return player.getBlockPos().getSquaredDistance(this.pos,false) <= 64.0D;
     }
 
     @Override
