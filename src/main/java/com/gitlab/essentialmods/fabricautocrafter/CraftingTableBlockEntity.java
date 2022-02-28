@@ -154,7 +154,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
-        return player.getBlockPos().getSquaredDistance(this.pos,false) <= 64.0D;
+        return player.getBlockPos().getSquaredDistance(this.pos) <= 64.0D;
     }
 
     @Override
