@@ -163,7 +163,8 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     private Optional<CraftingRecipe> getCurrentRecipe() {
-        if (this.world == null) return Optional.empty();
+        //Optimiation Code from Crec0
+        if (this.world == null || this.isEmpty()) return Optional.empty();
         return this.world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
     }
 
@@ -203,5 +204,4 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     public void onContainerClose(AutoCraftingTableContainer container) {
         this.openContainers.remove(container);
     }
-
 }
