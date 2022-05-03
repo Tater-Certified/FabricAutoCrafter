@@ -51,10 +51,11 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     @Override
-    public void writeNbt(NbtCompound tag) {
+    public NbtCompound writeNbt(NbtCompound tag) {
         super.writeNbt(tag);
         Inventories.writeNbt(tag, inventory);
         tag.put("Output", output.writeNbt(new NbtCompound()));
+        return tag;
     }
 
     @Override
@@ -154,7 +155,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
-        return player.getBlockPos().getSquaredDistance(this.pos) <= 64.0D;
+        return player.getBlockPos().getSquaredDistance(this.pos,false) <= 64.0D;
     }
 
     @Override
@@ -204,4 +205,5 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     public void onContainerClose(AutoCraftingTableContainer container) {
         this.openContainers.remove(container);
     }
+
 }

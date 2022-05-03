@@ -1,4 +1,4 @@
-# FabricAutoCrafter
+# FabricAutoCrafter 1.17
 ## A Fabric mod that adds a new Auto Crafter block
 
 This mod adds a new block, the Auto Crafter. It allows you to put items in the crafting table and get an output. Hoppers and droppers do interact with the table.
