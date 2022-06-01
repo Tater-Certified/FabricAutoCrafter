@@ -14,18 +14,17 @@ import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import static net.minecraft.util.math.Direction.DOWN;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.gitlab.essentialmods.fabricautocrafter.AutoCrafterMod.TYPE;
+import static net.minecraft.util.math.Direction.DOWN;
 
 
 public class CraftingTableBlockEntity extends LockableContainerBlockEntity implements SidedInventory {
@@ -66,7 +65,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     protected Text getContainerName() {
-        return new TranslatableText("container.crafting");
+        return Text.translatable("container.crafting");
     }
 
     @Override
