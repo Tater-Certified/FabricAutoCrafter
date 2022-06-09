@@ -1,6 +1,9 @@
+import java.nio.charset.StandardCharsets
+
 plugins {
     id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
+    id("com.modrinth.minotaur") version "2.1.2"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -48,6 +51,26 @@ jar {
     }
 }
 
+modrinth {
+    token.set(env("MODRINTH_TOKEN"))
+    projectId.set(modrinth_id)
+    versionType.set(env("RELEASE_OVERRIDE") ?: "alpha" in mod_version ? "alpha" : !bool("BUILD_RELEASE") || '-' in mod_version ? "beta" : "release")
+    def changelogContents = env("CHANGELOG")
+    if (changelogContents != null) {
+        changelog.set(changelogContents)
+    } else {
+        def ref = env("GITHUB_REF")
+        if (ref != null && ref.startsWith("refs/tags/")) {
+            changelog.set "You may view the changelog at ${env("GITHUB_SERVER_URL")}/${env("GITHUB_REPOSITORY")}/releases/tag/${URLEncoder.encode(ref.substring(10), StandardCharsets.UTF_8)}"
+        } else {
+            changelog.set "No changelog is available. Perhaps poke at ${env("GITHUB_SERVER_URL")}/${env("GITHUB_REPOSITORY")} for a changelog?"
+        }
+    }
+    uploadFile.set(remapJar)
+    gameVersions.set([minecraft_version])
+    loaders.addAll("fabric", "quilt")
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -56,4 +79,12 @@ publishing {
     }
     repositories {
     }
+}
+
+static String env(String env) {
+    return System.getenv(env)
+}
+
+static boolean bool(String env) {
+    return Boolean.parseBoolean(System.getenv(env))
 }
