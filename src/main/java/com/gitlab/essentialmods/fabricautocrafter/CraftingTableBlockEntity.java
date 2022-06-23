@@ -10,8 +10,7 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.*;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
@@ -27,7 +26,7 @@ import static com.gitlab.essentialmods.fabricautocrafter.AutoCrafterMod.TYPE;
 import static net.minecraft.util.math.Direction.DOWN;
 
 
-public class CraftingTableBlockEntity extends LockableContainerBlockEntity implements SidedInventory {
+public class CraftingTableBlockEntity extends LockableContainerBlockEntity implements SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
     private static final int[] OUTPUT_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     private static final int[] INPUT_SLOTS = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -36,6 +35,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     private final CraftingInventory craftingInventory = new CraftingInventory(null, 3, 3);
     public DefaultedList<ItemStack> inventory;
     public ItemStack output = ItemStack.EMPTY;
+    private Recipe<?> lastRecipe;
 
     public CraftingTableBlockEntity(BlockPos pos, BlockState state) {
         super(TYPE, pos, state);
@@ -157,14 +157,41 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     @Override
+    public void provideRecipeInputs(RecipeMatcher finder) {
+        for (ItemStack stack : this.inventory) finder.addInput(stack);
+    }
+
+    @Override
+    public void setLastRecipe(Recipe<?> recipe) {
+        lastRecipe = recipe;
+    }
+
+    @Override
+    public Recipe<?> getLastRecipe() {
+        return lastRecipe;
+    }
+
+    @Override
     public void clear() {
         this.inventory.clear();
     }
 
     private Optional<CraftingRecipe> getCurrentRecipe() {
-        //Optimiation Code from Crec0
+        //Optimization Code from Crec0
         if (this.world == null || this.isEmpty()) return Optional.empty();
-        return this.world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
+
+        CraftingRecipe lastRecipe = (CraftingRecipe) getLastRecipe();
+        RecipeManager manager = this.world.getRecipeManager();
+
+        if (lastRecipe != null) {
+            CraftingRecipe mapRecipe = manager.getAllOfType(RecipeType.CRAFTING).get(lastRecipe);
+            if (mapRecipe != null && mapRecipe.matches(craftingInventory, world)) {
+                return Optional.of(lastRecipe);
+            }
+        }
+        Optional<CraftingRecipe> recipe = manager.getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
+        recipe.ifPresent(this::setLastRecipe);
+        return recipe;
     }
 
     private ItemStack craft() {

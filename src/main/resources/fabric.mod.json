@@ -10,7 +10,7 @@
     "KJP12"
   ],
   "license": "GPL-3.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/autocrafter/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
