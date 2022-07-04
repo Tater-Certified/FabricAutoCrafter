@@ -20,6 +20,7 @@
   "mixins": [
     "autocrafter.mixins.json"
   ],
+  "accessWidener": "act.accesswidener",
   "depends": {
     "fabricloader": "*",
     "fabric": "*",
