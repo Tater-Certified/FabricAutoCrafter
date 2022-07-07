@@ -14,7 +14,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.gitlab.essentialmods.fabricautocrafter.AutoCrafterMod"
+      "com.github.tatercertified.fabricautocrafter.AutoCrafterMod"
     ]
   },
   "mixins": [

@@ -1,6 +1,6 @@
-package com.gitlab.essentialmods.fabricautocrafter;
+package com.github.tatercertified.fabricautocrafter;
 
-import com.gitlab.essentialmods.fabricautocrafter.mixin.AccessorScreenHandler;
+import com.github.tatercertified.fabricautocrafter.mixin.AccessorScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;

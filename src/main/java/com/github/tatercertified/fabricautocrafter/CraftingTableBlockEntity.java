@@ -1,6 +1,6 @@
-package com.gitlab.essentialmods.fabricautocrafter;
+package com.github.tatercertified.fabricautocrafter;
 
-import com.gitlab.essentialmods.fabricautocrafter.mixin.CraftingInventoryMixin;
+import com.github.tatercertified.fabricautocrafter.mixin.CraftingInventoryMixin;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gitlab.essentialmods.fabricautocrafter.AutoCrafterMod.TYPE;
+import static com.github.tatercertified.fabricautocrafter.AutoCrafterMod.TYPE;
 import static net.minecraft.util.math.Direction.DOWN;
 
 

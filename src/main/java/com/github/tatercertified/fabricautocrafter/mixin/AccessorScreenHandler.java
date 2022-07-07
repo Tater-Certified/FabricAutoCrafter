@@ -1,4 +1,4 @@
-package com.gitlab.essentialmods.fabricautocrafter.mixin;// Created 2022-26-01T17:38:48
+package com.github.tatercertified.fabricautocrafter.mixin;// Created 2022-26-01T17:38:48
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;

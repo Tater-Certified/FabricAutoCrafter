@@ -1,4 +1,4 @@
-package com.gitlab.essentialmods.fabricautocrafter;
+package com.github.tatercertified.fabricautocrafter;
 
 import eu.pb4.polymer.api.block.PolymerBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;

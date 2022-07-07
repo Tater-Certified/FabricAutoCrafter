@@ -1,4 +1,4 @@
-package com.gitlab.essentialmods.fabricautocrafter.mixin;// Created 2022-23-01T13:20:09
+package com.github.tatercertified.fabricautocrafter.mixin;// Created 2022-23-01T13:20:09
 
 import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
