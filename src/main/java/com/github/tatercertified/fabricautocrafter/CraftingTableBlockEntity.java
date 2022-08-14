@@ -13,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.*;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -65,7 +66,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
 
     @Override
     protected Text getContainerName() {
-        return Text.translatable("container.crafting");
+        return new TranslatableText("container.crafting");
     }
 
     @Override
@@ -184,7 +185,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
         RecipeManager manager = this.world.getRecipeManager();
 
         if (lastRecipe != null) {
-            CraftingRecipe mapRecipe = manager.getAllOfType(RecipeType.CRAFTING).get(lastRecipe);
+            CraftingRecipe mapRecipe = (CraftingRecipe) manager.getAllOfType(RecipeType.CRAFTING).get(lastRecipe);
             if (mapRecipe != null && mapRecipe.matches(craftingInventory, world)) {
                 return Optional.of(lastRecipe);
             }
