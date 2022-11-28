@@ -60,7 +60,7 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
     }
 
     @Override
-    public ItemStack transferSlot(PlayerEntity player, int slot) {
+    public ItemStack quickMove(PlayerEntity player, int slot) {
         if (slot == 0) {
             ItemStack before = this.blockEntity.getStack(0).copy();
             ItemStack current = before.copy();
@@ -69,7 +69,7 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
             slots.get(0).onQuickTransfer(current, before); // calls onCrafted if different
             return this.blockEntity.getStack(0);
         }
-        return super.transferSlot(player, slot);
+        return super.quickMove(player, slot);
     }
 
     public void close(PlayerEntity player) {
