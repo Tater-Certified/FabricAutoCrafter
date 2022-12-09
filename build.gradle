@@ -10,7 +10,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = project.mod_version_numbers
 group = project.maven_group
 
 repositories {
@@ -75,6 +75,8 @@ modrinth {
     uploadFile.set(remapJar)
     gameVersions.set([minecraft_version])
     loaders.addAll("fabric", "quilt")
+    versionNumber.set(project.version + "-" + project.minecraft_version)
+
 }
 
 publishing {
