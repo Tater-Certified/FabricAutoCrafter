@@ -10,7 +10,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version_numbers
+version = project.mod_version
 group = project.maven_group
 
 repositories {
@@ -60,7 +60,7 @@ jar {
 modrinth {
     token.set(env("MODRINTH_TOKEN"))
     projectId.set(modrinth_id)
-    versionType.set(env("RELEASE_OVERRIDE") ?: "alpha" in mod_version ? "alpha" : !bool("BUILD_RELEASE") || '-' in mod_version ? "beta" : "release")
+    versionType.set(env("RELEASE_OVERRIDE") ?: mod_version.contains("alpha") ? "alpha" : !bool("BUILD_RELEASE") || mod_version.contains('-') ? "beta" : "release")
     def changelogContents = env("CHANGELOG")
     if (changelogContents != null) {
         changelog.set(changelogContents)
