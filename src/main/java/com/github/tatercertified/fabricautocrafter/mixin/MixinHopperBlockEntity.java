@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 /**
  * Fixes a fatal assumption of the hopper being able to always remove a stack when it cannot.
@@ -44,7 +43,7 @@ public abstract class MixinHopperBlockEntity {
     @Redirect(method = "extract(Lnet/minecraft/block/entity/Hopper;Lnet/minecraft/inventory/Inventory;ILnet/minecraft/util/math/Direction;)Z",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/block/entity/HopperBlockEntity;canExtract(Lnet/minecraft/inventory/Inventory;Lnet/minecraft/inventory/Inventory;Lnet/minecraft/item/ItemStack;ILnet/minecraft/util/math/Direction;)Z"))
-    private static boolean fabricAutoCrafter$canExtract$redirect(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing) {
+    private static boolean fabricAutoCrafter$canExtract$redirect(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing, Hopper hopper) {
         return canExtract(hopperInventory, fromInventory, stack, slot, facing) && canInsertStack(hopper, stack);
     }
 
