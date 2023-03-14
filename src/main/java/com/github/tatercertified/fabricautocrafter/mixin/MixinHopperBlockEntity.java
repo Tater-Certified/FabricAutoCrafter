@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * <p>
  * This fixes the crafting table output slot being set by the hopper.
  *
- * @author KJP12
+ * @author Ampflower
  * @since ${version}
  **/
 @Mixin(HopperBlockEntity.class)
@@ -37,7 +37,7 @@ public abstract class MixinHopperBlockEntity {
      * <p>
      * There's probably a better way, but it doesn't seem immediately obvious for an if condition.
      *
-     * @author KJP12
+     * @author Ampflower
      * @reason Fix the hopper logic for the automatic crafting table
      */
     @Redirect(method = "extract(Lnet/minecraft/block/entity/Hopper;Lnet/minecraft/inventory/Inventory;ILnet/minecraft/util/math/Direction;)Z",
