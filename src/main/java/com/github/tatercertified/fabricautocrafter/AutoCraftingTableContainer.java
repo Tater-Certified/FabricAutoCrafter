@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.Recipe;
@@ -14,6 +15,8 @@ import net.minecraft.screen.CraftingScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+
+import java.util.List;
 
 public class AutoCraftingTableContainer extends CraftingScreenHandler {
     private final CraftingTableBlockEntity blockEntity;
@@ -93,8 +96,8 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
     }
 
     @Override
-    public boolean matches(Recipe<? super CraftingInventory> recipe) {
-        return recipe.matches(this.crafting_inv, this.player.world);
+    public boolean matches(Recipe<? super RecipeInputInventory> recipe) {
+        return recipe.matches(this.crafting_inv, this.player.getWorld());
     }
 
     @Override
@@ -132,8 +135,8 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         @Override
         protected void onCrafted(ItemStack stack, int amount) {
             super.onCrafted(stack); // from CraftingResultsSlot onCrafted
-            if (amount > 0) stack.onCraft(this.player.world, this.player, amount);
-            if (this.inventory instanceof RecipeUnlocker) ((RecipeUnlocker)this.inventory).unlockLastRecipe(this.player);
+            if (amount > 0) stack.onCraft(this.player.getWorld(), this.player, amount);
+            if (this.inventory instanceof RecipeUnlocker) ((RecipeUnlocker)this.inventory).unlockLastRecipe(this.player, List.of(stack));
         }
 
         @Override

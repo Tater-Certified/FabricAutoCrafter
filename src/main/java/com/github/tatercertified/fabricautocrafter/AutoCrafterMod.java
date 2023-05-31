@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
-import net.minecraft.block.Material;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroups;
@@ -21,7 +21,7 @@ import static net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.modifyEntries
 public class AutoCrafterMod implements ModInitializer {
 
     public static final Identifier IDENTIFIER = new Identifier("autocrafter", "autocrafter");
-    public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.of(Material.WOOD).strength(2.5f, 2.5f));
+    public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.copyOf(Blocks.CRAFTING_TABLE).strength(2.5f, 2.5f));
     public static final BlockItem ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings(), Items.CRAFTING_TABLE);
     public static final BlockEntityType<CraftingTableBlockEntity> TYPE = FabricBlockEntityTypeBuilder.create(CraftingTableBlockEntity::new, BLOCK).build(null);
 
