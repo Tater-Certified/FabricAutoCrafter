@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/oak_planks",
+    "east": "autocrafter:block/autocrafter_side",
+    "north": "autocrafter:block/autocrafter_front",
+    "particle": "autocrafter:block/autocrafter_front",
+    "south": "autocrafter:block/autocrafter_side",
+    "up": "autocrafter:block/autocrafter_top",
+    "west": "autocrafter:block/autocrafter_front"
+  }
+}

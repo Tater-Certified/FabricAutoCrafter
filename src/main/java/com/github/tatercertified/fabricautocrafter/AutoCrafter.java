@@ -1,6 +1,9 @@
 package com.github.tatercertified.fabricautocrafter;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.blocks.api.BlockModelType;
+import eu.pb4.polymer.blocks.api.PolymerBlockModel;
+import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
+import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -11,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -18,12 +22,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 
-import static net.minecraft.block.Blocks.CRAFTING_TABLE;
+public class AutoCrafter extends Block implements PolymerTexturedBlock, BlockEntityProvider {
+    private final BlockState polymerBlockState;
 
-public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
-
-    protected AutoCrafter(FabricBlockSettings blockSettings) {
+    protected AutoCrafter(FabricBlockSettings blockSettings, BlockModelType type, String modelId) {
         super(blockSettings);
+
+        this.polymerBlockState = PolymerBlockResourceUtils.requestBlock(
+                type,
+                PolymerBlockModel.of(new Identifier("autocrafter", modelId)));
     }
 
     @Override
@@ -39,10 +46,15 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
 
     @Override
     public Block getPolymerBlock(BlockState state) {
-        return CRAFTING_TABLE;
+        return this.polymerBlockState.getBlock();
     }
 
     @Override
+    public BlockState getPolymerBlockState(BlockState state) {
+        return this.polymerBlockState;
+    }
+
+        @Override
     public boolean hasComparatorOutput(BlockState state) {
         return state.hasBlockEntity();
     }

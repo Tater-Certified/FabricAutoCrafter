@@ -1,7 +1,9 @@
 package com.github.tatercertified.fabricautocrafter;
 
+import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -21,12 +23,15 @@ import static net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.modifyEntries
 public class AutoCrafterMod implements ModInitializer {
 
     public static final Identifier IDENTIFIER = new Identifier("autocrafter", "autocrafter");
-    public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.copyOf(Blocks.CRAFTING_TABLE).strength(2.5f, 2.5f));
+    public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.copyOf(Blocks.CRAFTING_TABLE).strength(2.5f, 2.5f), BlockModelType.FULL_BLOCK, "autocrafter");
     public static final BlockItem ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings(), Items.CRAFTING_TABLE);
     public static final BlockEntityType<CraftingTableBlockEntity> TYPE = FabricBlockEntityTypeBuilder.create(CraftingTableBlockEntity::new, BLOCK).build(null);
 
     @Override
     public void onInitialize() {
+        PolymerResourcePackUtils.markAsRequired();
+        PolymerResourcePackUtils.addModAssets("autocrafter");
+
         modifyEntriesEvent(ItemGroups.REDSTONE).register((content) -> content.add(ITEM));
 
         Registry.register(Registries.BLOCK, IDENTIFIER, BLOCK);
