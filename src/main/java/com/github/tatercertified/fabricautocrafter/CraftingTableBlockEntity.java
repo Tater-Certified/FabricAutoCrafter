@@ -13,13 +13,16 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.*;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.github.tatercertified.fabricautocrafter.AutoCrafterMod.TYPE;
@@ -35,7 +38,7 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     private final CraftingInventory craftingInventory = new CraftingInventory(null, 3, 3);
     public DefaultedList<ItemStack> inventory;
     public ItemStack output = ItemStack.EMPTY;
-    private Recipe<?> lastRecipe;
+    private RecipeEntry<?> lastRecipe;
 
     public CraftingTableBlockEntity(BlockPos pos, BlockState state) {
         super(TYPE, pos, state);
@@ -162,14 +165,16 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     @Override
-    public void setLastRecipe(Recipe<?> recipe) {
+    public void setLastRecipe(@Nullable RecipeEntry<?> recipe) {
         lastRecipe = recipe;
     }
 
     @Override
-    public Recipe<?> getLastRecipe() {
+    public RecipeEntry<?> getLastRecipe() {
         return lastRecipe;
     }
+
+
 
     @Override
     public void clear() {
@@ -177,21 +182,28 @@ public class CraftingTableBlockEntity extends LockableContainerBlockEntity imple
     }
 
     private Optional<CraftingRecipe> getCurrentRecipe() {
-        //Optimization Code from Crec0
+        // Optimization Code from Crec0
         if (this.world == null || this.isEmpty()) return Optional.empty();
 
-        CraftingRecipe lastRecipe = (CraftingRecipe) getLastRecipe();
         RecipeManager manager = this.world.getRecipeManager();
 
-        if (lastRecipe != null) {
-            CraftingRecipe mapRecipe = manager.getAllOfType(RecipeType.CRAFTING).get(lastRecipe);
-            if (mapRecipe != null && mapRecipe.matches(craftingInventory, world)) {
-                return Optional.of(lastRecipe);
+        var getLastRecipe = getLastRecipe();
+
+        if (getLastRecipe != null) {
+            CraftingRecipe recipe = (CraftingRecipe) getLastRecipe.value();
+            Map<Identifier, RecipeEntry<CraftingRecipe>> craftingRecipes = manager.getAllOfType(RecipeType.CRAFTING);
+            if (craftingRecipes.containsKey(recipe) && craftingRecipes.get(recipe) != null) {
+                CraftingRecipe mapRecipe = craftingRecipes.get(recipe).value();
+                if (mapRecipe != null && mapRecipe.matches(craftingInventory, world)) {
+                    return Optional.of(recipe);
+                }
             }
         }
-        Optional<CraftingRecipe> recipe = manager.getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
+
+        Optional<RecipeEntry<CraftingRecipe>> recipe = manager.getFirstMatch(RecipeType.CRAFTING, craftingInventory, world);
         recipe.ifPresent(this::setLastRecipe);
-        return recipe;
+
+        return recipe.map(RecipeEntry::value);
     }
 
     private ItemStack craft() {

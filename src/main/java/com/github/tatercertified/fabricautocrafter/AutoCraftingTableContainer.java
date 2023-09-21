@@ -9,6 +9,7 @@ import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeUnlocker;
 import net.minecraft.screen.CraftingScreenHandler;
@@ -96,8 +97,8 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
     }
 
     @Override
-    public boolean matches(Recipe<? super RecipeInputInventory> recipe) {
-        return recipe.matches(this.crafting_inv, this.player.getWorld());
+    public boolean matches(RecipeEntry<? extends Recipe<RecipeInputInventory>> recipe) {
+        return recipe.value().matches(this.crafting_inv, this.player.getWorld());
     }
 
     @Override
