@@ -136,7 +136,7 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         @Override
         protected void onCrafted(ItemStack stack, int amount) {
             super.onCrafted(stack); // from CraftingResultsSlot onCrafted
-            if (amount > 0) stack.onCraft(this.player.getWorld(), this.player, amount);
+            if (amount > 0) stack.onCraftByPlayer(this.player.getWorld(), this.player, amount);
             if (this.inventory instanceof RecipeUnlocker) ((RecipeUnlocker)this.inventory).unlockLastRecipe(this.player, List.of(stack));
         }
 
