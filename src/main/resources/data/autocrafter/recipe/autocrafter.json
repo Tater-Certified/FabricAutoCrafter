@@ -1,18 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "WWW",
-    "WRW",
-    "WWW"
-  ],
   "key": {
-    "W": {
-      "item": "minecraft:redstone"
-    },
-    "R": {
-      "item": "minecraft:crafting_table"
-    }
+    "#": "minecraft:redstone",
+    "X": "minecraft:crafting_table"
   },
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
   "result": {
     "count": 1,
     "id": "autocrafter:autocrafter"
