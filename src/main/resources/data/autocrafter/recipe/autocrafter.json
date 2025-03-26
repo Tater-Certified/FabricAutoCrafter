@@ -1,13 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "#": "minecraft:redstone",
-    "X": "minecraft:crafting_table"
+    "R": "minecraft:redstone",
+    "C": "minecraft:crafting_table"
   },
   "pattern": [
-    "###",
-    "#X#",
-    "###"
+    "RRR",
+    "RCR",
+    "RRR"
   ],
   "result": {
     "count": 1,

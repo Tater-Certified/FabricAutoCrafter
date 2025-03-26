@@ -6,10 +6,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.inventory.SidedInventory;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.*;
@@ -18,6 +15,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -63,12 +61,15 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
         Inventories.readNbt(nbt, inventory, registryLookup);
-        this.output = ItemStack.fromNbtOrEmpty(registryLookup, nbt.getCompound("Output"));
+        Optional<NbtCompound> outputCompound = nbt.getCompound("Output");
+        outputCompound.ifPresentOrElse((compound) -> {
+            this.output = ItemStack.fromNbt(registryLookup, compound).get();
+        }, () -> this.output = ItemStack.EMPTY);
     }
 
     @Override
     protected Text getContainerName() {
-        return Text.translatable("block.autocrafter.autocrafter");
+        return Text.translatable("container.autocrafter");
     }
 
     @Override
@@ -247,7 +248,16 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
         return craftingInventory;
     }
 
-    public void onContainerClose(AutoCraftingTableContainer container) {
-        this.openContainers.remove(container);
+    @Override
+    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
+        if (this.world != null) {
+            ItemScatterer.spawn(this.world, pos, this.getHeldStacks());
+        }
+
+        ListIterator<AutoCraftingTableContainer> iterator = this.openContainers.listIterator();
+        while (iterator.hasNext()) {
+            iterator.next().close();
+            iterator.remove();
+        }
     }
 }

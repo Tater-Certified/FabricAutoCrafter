@@ -30,7 +30,6 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         var self = (AccessorScreenHandler) this;
         slots.clear();
         self.getTrackedStacks().clear();
-        self.getPreviousTrackedStacks().clear();
 
         this.addSlot(new OutputSlot(this.blockEntity, this.player));
 
@@ -72,31 +71,22 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         return super.quickMove(player, slot);
     }
 
-    public void close(PlayerEntity player) {
+    public void close() {
         this.crafting_inv = blockEntity.unsetHandler();
         ItemStack cursorStack = this.player.currentScreenHandler.getCursorStack();
         if (!cursorStack.isEmpty()) {
-            player.dropItem(cursorStack, false);
+            this.player.dropItem(cursorStack, false);
             this.player.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
         }
-        this.blockEntity.onContainerClose(this);
+        if (this.player instanceof ServerPlayerEntity serverPlayer) {
+            serverPlayer.closeHandledScreen();
+        }
     }
 
     @Override
     public void populateRecipeFinder(RecipeFinder finder) {
         this.crafting_inv.provideRecipeInputs(finder);
     }
-
-    // TODO See if these are needed anymore
-    //@Override
-    //public void clearCraftingSlots() {
-    //    this.crafting_inv.clear();
-    //}
-
-    //@Override
-    //public boolean matches(RecipeEntry<CraftingRecipe> recipe) {
-    //    return recipe.value().matches(this.crafting_inv.createRecipeInput(), this.player.getWorld());
-    //}
 
     @Override
     public int getWidth() {
@@ -133,7 +123,7 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
         @Override
         protected void onCrafted(ItemStack stack, int amount) {
             super.onCrafted(stack); // from CraftingResultsSlot onCrafted
-            if (amount > 0) stack.onCraftByPlayer(this.player.getWorld(), this.player, amount);
+            if (amount > 0) stack.onCraftByPlayer(this.player, amount);
             if (this.inventory instanceof RecipeUnlocker) ((RecipeUnlocker)this.inventory).unlockLastRecipe(this.player, List.of(stack));
         }
 

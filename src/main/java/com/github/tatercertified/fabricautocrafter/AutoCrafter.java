@@ -8,14 +8,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
@@ -59,33 +56,6 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
             return (filled * 15) / 9;
         }
         return 0;
-    }
-
-
-    @Override
-    public void onStateReplaced(BlockState oldState, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (oldState.getBlock() != newState.getBlock()) {
-            if (world.getBlockEntity(pos) instanceof AutoCraftingTableBlockEntity entity) {
-                ItemScatterer.spawn(world, pos, entity.getHeldStacks());
-                if (!entity.getOutput().isEmpty()) {
-                    ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), entity.getOutput());
-                }
-                world.updateNeighborsAlways(pos, this);
-            }
-            world.removeBlockEntity(pos);
-
-            super.onStateReplaced(oldState, world, pos, newState, moved);
-        }
-    }
-
-    @Override
-    public void onDestroyedByExplosion(ServerWorld world, BlockPos pos, Explosion explosion) {
-        if (world.getBlockEntity(pos) instanceof AutoCraftingTableBlockEntity entity) {
-            ItemScatterer.spawn(world, pos, entity.getHeldStacks());
-            if (!entity.getOutput().isEmpty()) {
-                ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), entity.getOutput());
-            }
-        }
     }
 
     @Nullable
