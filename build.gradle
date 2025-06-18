@@ -26,10 +26,10 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-    modImplementation include("eu.pb4:polymer-core:0.12.1+1.21.5-rc2")
+    modImplementation include("eu.pb4:polymer-core:0.13.1+1.21.6")
     modImplementation include("xyz.nucleoid:server-translations-api:2.5.0+1.21.5-rc1")
-    modImplementation "maven.modrinth:lithium:mc1.21.5-0.16.0-fabric"
-    include(implementation("com.moulberry:mixinconstraints:1.0.2"))
+    modImplementation "maven.modrinth:lithium:mc1.21.6-0.17.0-fabric"
+    include(implementation("com.moulberry:mixinconstraints:1.0.8"))
 }
 
 processResources {

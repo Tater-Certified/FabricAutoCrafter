@@ -8,12 +8,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.*;
 import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
@@ -49,22 +49,21 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        Inventories.writeNbt(nbt, inventory, registryLookup);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+        Inventories.writeData(view, inventory);
         if (!output.isEmpty()) {
-            nbt.put("Output", output.toNbt(registryLookup));
+            view.put("Output", ItemStack.CODEC, output);
         }
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
-        Inventories.readNbt(nbt, inventory, registryLookup);
-        Optional<NbtCompound> outputCompound = nbt.getCompound("Output");
-        outputCompound.ifPresentOrElse((compound) -> {
-            this.output = ItemStack.fromNbt(registryLookup, compound).get();
-        }, () -> this.output = ItemStack.EMPTY);
+    protected void readData(ReadView view) {
+        super.readData(view);
+        Inventories.readData(view, inventory);
+        view.read("Output", ItemStack.CODEC).ifPresentOrElse(
+                stack -> this.output = stack, () -> this.output = ItemStack.EMPTY
+        );
     }
 
     @Override
@@ -85,10 +84,6 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
     @Override
     public DefaultedList<ItemStack> getHeldStacks() {
         return this.inventory;
-    }
-
-    public ItemStack getOutput() {
-        return this.output;
     }
 
     @Override
