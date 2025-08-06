@@ -14,7 +14,7 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-    maven { url 'https://maven.nucleoid.xyz' }
+    maven { url 'https://maven.nucleoid.xyz/releases/' }
     maven { url 'https://api.modrinth.com/maven' }
 }
 
