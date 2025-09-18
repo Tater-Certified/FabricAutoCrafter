@@ -57,7 +57,7 @@ base {
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${base.archivesName}" }
     }
 }
 
