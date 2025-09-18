@@ -26,13 +26,13 @@ public abstract class MixinHopperBlockEntity {
      */
     @Shadow
     private static boolean canExtract(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing) {
-        return Math.random() > .5d;
+        return Math.random() > 0.5d;
     }
 
     /**
      * Redirects the canExtract check to check if the stack can be inserted after checking if it can be extracted.
      * <p>
-     * This should be side-effect free for vanilla stuff; the only things that would be effected would be stuff
+     * This should be side effect free for vanilla stuff; the only things that would be effected would be stuff
      * that does special logic on removal of a certain slot, like in the case of the automatic crafting table.
      * <p>
      * There's probably a better way, but it doesn't seem immediately obvious for an if condition.

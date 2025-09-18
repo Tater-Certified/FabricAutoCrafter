@@ -1,20 +1,16 @@
 import java.nio.charset.StandardCharsets
 
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.11-SNAPSHOT'
     id 'maven-publish'
     id("com.modrinth.minotaur") version "2.8.7"
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-    maven { url 'https://maven.nucleoid.xyz' }
+    maven { url 'https://maven.nucleoid.xyz/releases/' }
     maven { url 'https://api.modrinth.com/maven' }
 }
 
@@ -26,10 +22,10 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-    modImplementation include("eu.pb4:polymer-core:0.9.11+1.21.1")
+    modImplementation include("eu.pb4:polymer-core:0.9.17+1.21.1")
     modImplementation include("xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2")
-    modImplementation "maven.modrinth:lithium:mc1.21.1-0.13.0"
-    include(implementation("com.moulberry:mixinconstraints:1.0.1"))
+    modImplementation "maven.modrinth:lithium:mc1.21.1-0.15.0-fabric"
+    include(implementation("com.moulberry:mixinconstraints:1.0.8"))
 }
 
 loom {
@@ -50,6 +46,13 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+base {
+    archivesName = project.archives_base_name
 }
 
 jar {
