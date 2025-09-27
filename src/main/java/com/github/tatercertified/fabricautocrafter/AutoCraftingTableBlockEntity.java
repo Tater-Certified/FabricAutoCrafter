@@ -197,16 +197,16 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
         var getLastRecipe = getLastRecipe();
 
         if (getLastRecipe != null) {
-             CraftingRecipe recipe = (CraftingRecipe) getLastRecipe.value();
+            CraftingRecipe recipe = (CraftingRecipe) getLastRecipe.value();
 
-             for (RecipeEntry<CraftingRecipe> entry : manager.getAllOfType(RecipeType.CRAFTING)) {
-                 if (entry.value().equals(recipe)) {
-                     CraftingRecipe mapRecipe = entry.value();
-                     if (mapRecipe.matches(this.craftingInventory.createRecipeInput(), world)) {
-                         return Optional.of(mapRecipe);
-                     }
-                 }
-             }
+            for (RecipeEntry<CraftingRecipe> entry : manager.getAllOfType(RecipeType.CRAFTING)) {
+                if (entry.value().equals(recipe)) {
+                    CraftingRecipe mapRecipe = entry.value();
+                    if (mapRecipe.matches(this.craftingInventory.createRecipeInput(), world)) {
+                        return Optional.of(mapRecipe);
+                    }
+                }
+            }
         }
 
         Optional<RecipeEntry<CraftingRecipe>> recipe = manager.getFirstMatch(RecipeType.CRAFTING, craftingInventory.createRecipeInput(), world);
@@ -226,18 +226,23 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
         final DefaultedList<ItemStack> remaining = world.getRecipeManager().getRemainingStacks(RecipeType.CRAFTING, input, world);
         for (int i = 0; i < 9; i++) {
             ItemStack current = inventory.get(i);
-            ItemStack remainingStack = remaining.get(i);
             if (!current.isEmpty()) {
                 current.decrement(1);
             }
-            if (!remainingStack.isEmpty()) {
-                if (current.isEmpty()) {
-                    inventory.set(i, remainingStack);
-                } else if (ItemStack.areItemsAndComponentsEqual(current, remainingStack)) {
-                    current.increment(remainingStack.getCount());
-                } else {
-                    ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), remainingStack);
+
+            if (remaining.size() > i) {
+                ItemStack remainingStack = remaining.get(i);
+                if (!remainingStack.isEmpty()) {
+                    if (current.isEmpty()) {
+                        inventory.set(i, remainingStack);
+                    } else if (ItemStack.areItemsAndComponentsEqual(current, remainingStack)) {
+                        current.increment(remainingStack.getCount());
+                    } else {
+                        ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), remainingStack);
+                    }
                 }
+            } else {
+                break;
             }
         }
         markDirty();
