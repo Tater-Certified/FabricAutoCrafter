@@ -12,6 +12,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -26,7 +27,7 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
 
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return ActionResult.SUCCESS;
         } else if (world.getBlockEntity(pos) instanceof AutoCraftingTableBlockEntity entity) {
             player.openHandledScreen(entity);
@@ -46,8 +47,10 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        if (!state.hasBlockEntity()) return 0;
+    protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
+        if (!state.hasBlockEntity()) {
+            return 0;
+        }
         if (world.getBlockEntity(pos) instanceof AutoCraftingTableBlockEntity craftingTableBlockEntity) {
             int filled = 0;
             for (ItemStack stack : craftingTableBlockEntity.getHeldStacks()) {
