@@ -1,7 +1,7 @@
 package com.github.tatercertified.fabricautocrafter;
 
-import eu.pb4.polymer.api.block.PolymerBlockUtils;
-import eu.pb4.polymer.api.item.PolymerBlockItem;
+import eu.pb4.polymer.block.BlockHelper;
+import eu.pb4.polymer.item.VirtualBlockItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -19,7 +19,7 @@ public class AutoCrafterMod implements ModInitializer {
 
     public static final Identifier IDENTIFIER = new Identifier("autocrafter", "autocrafter");
     public static final Block BLOCK = new AutoCrafter(FabricBlockSettings.of(Material.WOOD).strength(2.5f, 2.5f));
-    public static final BlockItem ITEM = new PolymerBlockItem(BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE), Items.CRAFTING_TABLE);
+    public static final BlockItem ITEM = new VirtualBlockItem(BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE), Items.CRAFTING_TABLE);
     public static final BlockEntityType<CraftingTableBlockEntity> TYPE = FabricBlockEntityTypeBuilder.create(CraftingTableBlockEntity::new, BLOCK).build(null);
 
     @Override
@@ -27,6 +27,6 @@ public class AutoCrafterMod implements ModInitializer {
         Registry.register(Registry.BLOCK, IDENTIFIER, BLOCK);
         Registry.register(Registry.ITEM, IDENTIFIER, ITEM);
         Registry.register(Registry.BLOCK_ENTITY_TYPE, IDENTIFIER, TYPE);
-        PolymerBlockUtils.registerBlockEntity(TYPE);
+        BlockHelper.registerVirtualBlockEntity(TYPE);
     }
 }

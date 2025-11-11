@@ -1,6 +1,6 @@
 package com.github.tatercertified.fabricautocrafter;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.block.VirtualBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.block.Blocks.CRAFTING_TABLE;
 
-public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
+public class AutoCrafter extends Block implements VirtualBlock, BlockEntityProvider {
 
     protected AutoCrafter(FabricBlockSettings blockSettings) {
         super(blockSettings);
@@ -35,11 +35,6 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
             player.incrementStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
         }
         return ActionResult.CONSUME;
-    }
-
-    @Override
-    public Block getPolymerBlock(BlockState state) {
-        return CRAFTING_TABLE;
     }
 
     @Override
@@ -91,5 +86,10 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return state.isOf(AutoCrafterMod.BLOCK) ? new CraftingTableBlockEntity(pos, state) : null;
+    }
+
+    @Override
+    public Block getVirtualBlock() {
+        return CRAFTING_TABLE;
     }
 }

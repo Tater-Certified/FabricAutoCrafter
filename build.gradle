@@ -1,20 +1,16 @@
 import java.nio.charset.StandardCharsets
 
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.13-SNAPSHOT'
     id 'maven-publish'
-    id("com.modrinth.minotaur") version "2.1.2"
+    id("com.modrinth.minotaur") version "2.8.7"
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-    maven { url 'https://maven.nucleoid.xyz' }
+    maven { url 'https://maven.nucleoid.xyz/releases/' }
     maven { url 'https://api.modrinth.com/maven' }
 }
 
@@ -27,7 +23,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
     modImplementation("maven.modrinth:lazydfu:0.1.2")
-    modImplementation include("eu.pb4:polymer:0.2.0-alpha.2+1.17.1")
+    modImplementation include("eu.pb4:polymer:0.1.9+1.17.1")
     modImplementation include("fr.catcore:server-translations-api:1.4.8+1.17")
 }
 
@@ -49,18 +45,25 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+base {
+    archivesName = project.archives_base_name
 }
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${base.archivesName}" }
     }
 }
 
 modrinth {
     token.set(env("MODRINTH_TOKEN"))
     projectId.set(modrinth_id)
-    versionType.set(env("RELEASE_OVERRIDE") ?: "alpha" in mod_version ? "alpha" : !bool("BUILD_RELEASE") || '-' in mod_version ? "beta" : "release")
+    versionType.set(env("RELEASE_OVERRIDE") ?: mod_version.contains("alpha") ? "alpha" : !bool("BUILD_RELEASE") || mod_version.contains('-') ? "beta" : "release")
     def changelogContents = env("CHANGELOG")
     if (changelogContents != null) {
         changelog.set(changelogContents)
@@ -75,6 +78,9 @@ modrinth {
     uploadFile.set(remapJar)
     gameVersions.set([minecraft_version])
     loaders.addAll("fabric", "quilt")
+    versionNumber.set(project.version + "-" + project.minecraft_version)
+    required.project "polymer"
+
 }
 
 publishing {
