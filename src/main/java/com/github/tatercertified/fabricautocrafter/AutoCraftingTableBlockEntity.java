@@ -1,29 +1,36 @@
 package com.github.tatercertified.fabricautocrafter;
 
-import com.github.tatercertified.fabricautocrafter.mixin.CraftingInventoryMixin;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.*;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import com.github.tatercertified.fabricautocrafter.mixin.TransientCraftingContainerMixin;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.player.StackedItemContents;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.RecipeCraftingHolder;
+import net.minecraft.world.inventory.TransientCraftingContainer;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeCache;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Containers;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity implements SidedInventory, RecipeUnlocker, RecipeInputInventory {
+public class AutoCraftingTableBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeCraftingHolder, CraftingContainer {
 
     private static final int[] OUTPUT_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     private static final int[] INPUT_SLOTS = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -31,44 +38,44 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
     private static final int GRID_HEIGHT = 3;
 
     private final List<AutoCraftingTableContainer> openContainers = new ArrayList<>();
-    private final CraftingInventory craftingInventory = new CraftingInventory(null, 3, 3);
-    public DefaultedList<ItemStack> inventory;
+    private final TransientCraftingContainer craftingInventory = new TransientCraftingContainer(null, 3, 3);
+    public NonNullList<ItemStack> inventory;
     private ItemStack output = ItemStack.EMPTY;
-    private RecipeEntry<?> lastRecipe;
+    private RecipeHolder<?> lastRecipe;
     private static final RecipeCache recipeCache = new RecipeCache(10);
 
     public AutoCraftingTableBlockEntity(BlockPos pos, BlockState state) {
         super(AutoCrafterMod.TYPE, pos, state);
-        this.inventory = DefaultedList.ofSize(9, ItemStack.EMPTY);
-        ((CraftingInventoryMixin) craftingInventory).setInventory(this.inventory);
+        this.inventory = NonNullList.withSize(9, ItemStack.EMPTY);
+        ((TransientCraftingContainerMixin) craftingInventory).setInventory(this.inventory);
     }
 
-    public CraftingInventory bindInventory(ScreenHandler handler) {
-        ((CraftingInventoryMixin) craftingInventory).setHandler(handler);
+    public TransientCraftingContainer bindInventory(AbstractContainerMenu handler) {
+        ((TransientCraftingContainerMixin) craftingInventory).setMenu(handler);
         return craftingInventory;
     }
 
     @Override
-    protected void writeData(WriteView view) {
-        super.writeData(view);
-        Inventories.writeData(view, inventory);
+    protected void saveAdditional(ValueOutput view) {
+        super.saveAdditional(view);
+        ContainerHelper.saveAllItems(view, inventory);
         if (!output.isEmpty()) {
-            view.put("Output", ItemStack.CODEC, output);
+            view.store("Output", ItemStack.CODEC, output);
         }
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
-        Inventories.readData(view, inventory);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
+        ContainerHelper.loadAllItems(view, inventory);
         view.read("Output", ItemStack.CODEC).ifPresentOrElse(
                 stack -> this.output = stack, () -> this.output = ItemStack.EMPTY
         );
     }
 
     @Override
-    protected Text getContainerName() {
-        return Text.translatable("container.autocrafter");
+    protected Component getDefaultName() {
+        return Component.translatable("container.autocrafter");
     }
 
     @Override
@@ -82,44 +89,44 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
     }
 
     @Override
-    public DefaultedList<ItemStack> getHeldStacks() {
+    public NonNullList<ItemStack> getItems() {
         return this.inventory;
     }
 
     @Override
-    protected void setHeldStacks(DefaultedList<ItemStack> inventory) {
+    protected void setItems(NonNullList<ItemStack> inventory) {
         this.inventory = inventory;
     }
 
     @Override
-    protected ScreenHandler createScreenHandler(int id, PlayerInventory playerInventory) {
+    protected AbstractContainerMenu createMenu(int id, Inventory playerInventory) {
         final AutoCraftingTableContainer container = new AutoCraftingTableContainer(id, playerInventory, this);
         this.openContainers.add(container);
         return container;
     }
 
     @Override
-    public int[] getAvailableSlots(Direction dir) {
+    public int[] getSlotsForFace(Direction dir) {
         return (dir == Direction.DOWN && (!output.isEmpty() || (!quickEscape() && !getCurrentRecipe().isEmpty()))) ? OUTPUT_SLOTS : INPUT_SLOTS;
     }
 
     @Override
-    public boolean canInsert(int slot, ItemStack stack, Direction dir) {
-        return slot > 0 && getStack(slot).isEmpty();
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction dir) {
+        return slot > 0 && getItem(slot).isEmpty();
     }
 
     @Override
-    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
         return slot != 0 || !output.isEmpty() || (!quickEscape() && !getCurrentRecipe().isEmpty());
     }
 
     @Override
-    public boolean isValid(int slot, ItemStack stack) {
-        return slot != 0 && slot <= size();
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return slot != 0 && slot <= getContainerSize();
     }
 
     @Override
-    public int size() {
+    public int getContainerSize() {
         return 10;
     }
 
@@ -132,121 +139,121 @@ public class AutoCraftingTableBlockEntity extends LockableContainerBlockEntity i
     }
 
     @Override
-    public ItemStack getStack(int slot) {
+    public ItemStack getItem(int slot) {
         if (slot > 0) return this.inventory.get(slot - 1);
         if (!output.isEmpty()) return output;
         return quickEscape()? ItemStack.EMPTY : getCurrentRecipe();
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
+    public ItemStack removeItem(int slot, int amount) {
         if (slot == 0) {
             if (output.isEmpty()) output = craft();
             return output.split(amount);
         }
-        return Inventories.splitStack(this.inventory, slot - 1, amount);
+        return ContainerHelper.removeItem(this.inventory, slot - 1, amount);
     }
 
     @Override
-    public ItemStack removeStack(int slot) {
+    public ItemStack removeItemNoUpdate(int slot) {
         if (slot == 0) {
             ItemStack output = this.output;
             this.output = ItemStack.EMPTY;
             return output;
         }
-        return Inventories.removeStack(this.inventory, slot - 1);
+        return ContainerHelper.takeItem(this.inventory, slot - 1);
     }
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         if (slot == 0) {
             output = stack;
             return;
         }
         inventory.set(slot - 1, stack);
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public void markDirty() {
-        super.markDirty();
-        for (AutoCraftingTableContainer c : openContainers) c.onContentChanged(this);
+    public void setChanged() {
+        super.setChanged();
+        for (AutoCraftingTableContainer c : openContainers) c.slotsChanged(this);
     }
 
     @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return player.getBlockPos().getSquaredDistance(this.pos) <= 64.0D;
+    public boolean stillValid(Player player) {
+        return player.blockPosition().distSqr(this.worldPosition) <= 64.0D;
     }
 
     @Override
-    public void provideRecipeInputs(RecipeFinder finder) {
-        for (ItemStack stack : this.inventory) finder.addInput(stack);
+    public void fillStackedContents(StackedItemContents finder) {
+        for (ItemStack stack : this.inventory) finder.accountStack(stack);
     }
 
     @Override
-    public void setLastRecipe(@Nullable RecipeEntry<?> recipe) {
+    public void setRecipeUsed(@Nullable RecipeHolder<?> recipe) {
         lastRecipe = recipe;
     }
 
     @Override
-    public RecipeEntry<?> getLastRecipe() {
+    public RecipeHolder<?> getRecipeUsed() {
         return lastRecipe;
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         this.inventory.clear();
     }
 
     private ItemStack getCurrentRecipe() {
-        BlockEntity craftingRecipeInput = this.world.getBlockEntity(pos);
+        BlockEntity craftingRecipeInput = this.level.getBlockEntity(worldPosition);
         if (craftingRecipeInput instanceof AutoCraftingTableBlockEntity autoCraftingTableBlockEntity) {
-            CraftingRecipeInput var11 = autoCraftingTableBlockEntity.createRecipeInput();
-            Optional<RecipeEntry<CraftingRecipe>> optional = getCraftingRecipe((ServerWorld) this.world, var11);
+            CraftingInput var11 = autoCraftingTableBlockEntity.asCraftInput();
+            Optional<RecipeHolder<CraftingRecipe>> optional = getCraftingRecipe((ServerLevel) this.level, var11);
             if (optional.isPresent()) {
-                RecipeEntry<CraftingRecipe> recipeEntry = optional.get();
-                return recipeEntry.value().craft(var11, this.world.getRegistryManager());
+                RecipeHolder<CraftingRecipe> recipeEntry = optional.get();
+                return recipeEntry.value().assemble(var11);
             }
         }
         return ItemStack.EMPTY;
     }
 
     private boolean quickEscape() {
-        return this.world == null || this.isEmpty();
+        return this.level == null || this.isEmpty();
     }
 
     private ItemStack craft() {
         if (quickEscape()) return ItemStack.EMPTY;
-        BlockEntity craftingRecipeInput = this.world.getBlockEntity(pos);
+        BlockEntity craftingRecipeInput = this.level.getBlockEntity(worldPosition);
         if (craftingRecipeInput instanceof AutoCraftingTableBlockEntity autoCraftingTableBlockEntity) {
             ItemStack itemStack = getCurrentRecipe();
             if (!itemStack.isEmpty()) {
-                itemStack.onCraftByCrafter(this.world);
-                autoCraftingTableBlockEntity.getHeldStacks().forEach((stack) -> {
+                itemStack.onCraftedBySystem(this.level);
+                autoCraftingTableBlockEntity.getItems().forEach((stack) -> {
                     if (!stack.isEmpty()) {
-                        stack.decrement(1);
+                        stack.shrink(1);
                     }
                 });
-                autoCraftingTableBlockEntity.markDirty();
+                autoCraftingTableBlockEntity.setChanged();
                 return itemStack;
             }
         }
         return ItemStack.EMPTY;
     }
 
-    private static Optional<RecipeEntry<CraftingRecipe>> getCraftingRecipe(ServerWorld world, CraftingRecipeInput input) {
-        return recipeCache.getRecipe(world, input);
+    private static Optional<RecipeHolder<CraftingRecipe>> getCraftingRecipe(ServerLevel world, CraftingInput input) {
+        return recipeCache.get(world, input);
     }
 
-    public CraftingInventory unsetHandler() {
-        ((CraftingInventoryMixin) craftingInventory).setHandler(null);
+    public TransientCraftingContainer unsetHandler() {
+        ((TransientCraftingContainerMixin) craftingInventory).setMenu(null);
         return craftingInventory;
     }
 
     @Override
-    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
-        if (this.world != null) {
-            ItemScatterer.spawn(this.world, pos, this.getHeldStacks());
+    public void preRemoveSideEffects(BlockPos pos, BlockState oldState) {
+        if (this.level != null) {
+            Containers.dropContents(this.level, pos, this.getItems());
         }
 
         ListIterator<AutoCraftingTableContainer> iterator = this.openContainers.listIterator();

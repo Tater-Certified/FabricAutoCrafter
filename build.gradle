@@ -1,9 +1,6 @@
-import java.nio.charset.StandardCharsets
-
 plugins {
-    id 'fabric-loom' version '1.14-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
     id 'maven-publish'
-    id("com.modrinth.minotaur") version "2.8.7"
 }
 
 version = project.mod_version
@@ -20,15 +17,14 @@ base {
 
 dependencies {
     // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    minecraft("com.mojang:minecraft:${project.minecraft_version}")
+    implementation("net.fabricmc:fabric-loader:${project.loader_version}")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-    modImplementation include("eu.pb4:polymer-core:0.15.0-beta.4+1.21.11-rc2")
-    modImplementation include("xyz.nucleoid:server-translations-api:2.5.2+1.21.9-pre3")
-    modImplementation "maven.modrinth:lithium:mc1.21.11-0.21.0-fabric"
+    implementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
+    implementation(include("eu.pb4:polymer-core:0.16.0+26.1.1"))
+    implementation(include("xyz.nucleoid:server-translations-api:3.0.1+26.1"))
+    implementation("maven.modrinth:lithium:mc26.1.1-0.23.0-fabric")
     include(implementation("com.moulberry:mixinconstraints:1.0.8"))
 }
 
@@ -40,7 +36,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
@@ -68,45 +64,4 @@ jar {
     from("LICENSE") {
         rename { "${it}_${base.archivesName}" }
     }
-}
-
-modrinth {
-    token.set(env("MODRINTH_TOKEN"))
-    projectId.set(modrinth_id)
-    versionType.set(env("RELEASE_OVERRIDE") ?: mod_version.contains("alpha") ? "alpha" : !bool("BUILD_RELEASE") || mod_version.contains('-') ? "beta" : "release")
-    def changelogContents = env("CHANGELOG")
-    if (changelogContents != null) {
-        changelog.set(changelogContents)
-    } else {
-        def ref = env("GITHUB_REF")
-        if (ref != null && ref.startsWith("refs/tags/")) {
-            changelog.set "You may view the changelog at ${env("GITHUB_SERVER_URL")}/${env("GITHUB_REPOSITORY")}/releases/tag/${URLEncoder.encode(ref.substring(10), StandardCharsets.UTF_8)}"
-        } else {
-            changelog.set "No changelog is available. Perhaps poke at ${env("GITHUB_SERVER_URL")}/${env("GITHUB_REPOSITORY")} for a changelog?"
-        }
-    }
-    uploadFile.set(remapJar)
-    gameVersions.set([minecraft_version])
-    loaders.addAll("fabric", "quilt")
-    versionNumber.set(project.version + "-" + project.minecraft_version)
-    required.project "polymer"
-
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-    repositories {
-    }
-}
-
-static String env(String env) {
-    return System.getenv(env)
-}
-
-static boolean bool(String env) {
-    return Boolean.parseBoolean(System.getenv(env))
 }

@@ -1,59 +1,59 @@
 package com.github.tatercertified.fabricautocrafter;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
-import static net.minecraft.block.Blocks.CRAFTING_TABLE;
+import static net.minecraft.world.level.block.Blocks.CRAFTING_TABLE;
 
-public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvider {
+public class AutoCrafter extends Block implements PolymerBlock, EntityBlock {
 
-    protected AutoCrafter(AbstractBlock.Settings blockSettings) {
+    protected AutoCrafter(BlockBehaviour.Properties blockSettings) {
         super(blockSettings);
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.isClient()) {
-            return ActionResult.SUCCESS;
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        if (world.isClientSide()) {
+            return InteractionResult.SUCCESS;
         } else if (world.getBlockEntity(pos) instanceof AutoCraftingTableBlockEntity entity) {
-            player.openHandledScreen(entity);
-            player.incrementStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
+            player.openMenu(entity);
+            player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
         }
-        return ActionResult.CONSUME;
+        return InteractionResult.CONSUME;
     }
 
     @Override
     public BlockState getPolymerBlockState(BlockState blockState, PacketContext packetContext) {
-        return CRAFTING_TABLE.getDefaultState();
+        return CRAFTING_TABLE.defaultBlockState();
     }
 
     @Override
-    public boolean hasComparatorOutput(BlockState state) {
+    public boolean hasAnalogOutputSignal(BlockState state) {
         return state.hasBlockEntity();
     }
 
     @Override
-    protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
+    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
         if (!state.hasBlockEntity()) {
             return 0;
         }
         if (world.getBlockEntity(pos) instanceof AutoCraftingTableBlockEntity craftingTableBlockEntity) {
             int filled = 0;
-            for (ItemStack stack : craftingTableBlockEntity.getHeldStacks()) {
+            for (ItemStack stack : craftingTableBlockEntity.getItems()) {
                 if (!stack.isEmpty()) filled++;
             }
             return (filled * 15) / 9;
@@ -63,7 +63,7 @@ public class AutoCrafter extends Block implements PolymerBlock, BlockEntityProvi
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return state.isOf(AutoCrafterMod.BLOCK) ? new AutoCraftingTableBlockEntity(pos, state) : null;
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return state.is(AutoCrafterMod.BLOCK) ? new AutoCraftingTableBlockEntity(pos, state) : null;
     }
 }

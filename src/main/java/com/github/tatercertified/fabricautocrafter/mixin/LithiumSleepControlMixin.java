@@ -19,12 +19,12 @@ public class LithiumSleepControlMixin {
     @Shadow
     private AutoCraftingTableBlockEntity blockEntity;
 
-    @Inject(method = "onContentChanged", at = @At("TAIL"))
+    @Inject(method = "slotsChanged", at = @At("TAIL"))
     public void injectSleep(CallbackInfo ci) {
         ((SleepingBlockEntity)blockEntity).lithium$startSleeping();
     }
 
-    @Inject(method = "onContentChanged", at = @At("HEAD"))
+    @Inject(method = "slotsChanged", at = @At("HEAD"))
     public void injectWakeUp(CallbackInfo ci) {
         ((SleepingBlockEntity)blockEntity).wakeUpNow();
     }

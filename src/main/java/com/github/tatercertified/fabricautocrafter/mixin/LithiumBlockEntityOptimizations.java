@@ -4,24 +4,24 @@ import com.github.tatercertified.fabricautocrafter.AutoCraftingTableBlockEntity;
 import com.moulberry.mixinconstraints.annotations.IfModLoaded;
 import net.caffeinemc.mods.lithium.common.block.entity.SleepingBlockEntity;
 import net.caffeinemc.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.recipe.RecipeInputProvider;
-import net.minecraft.recipe.RecipeUnlocker;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.inventory.StackedContentsCompatible;
+import net.minecraft.world.inventory.RecipeCraftingHolder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
 @IfModLoaded(value = "lithium")
 @Mixin(AutoCraftingTableBlockEntity.class)
-public abstract class LithiumBlockEntityOptimizations extends LockableContainerBlockEntity implements SidedInventory, RecipeUnlocker, RecipeInputProvider, SleepingBlockEntity {
+public abstract class LithiumBlockEntityOptimizations extends BaseContainerBlockEntity implements WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, SleepingBlockEntity {
 
     // Block Entity Sleeping
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
-    private BlockEntityTickInvoker sleepingTicker = null;
+    private TickingBlockEntity sleepingTicker = null;
 
     protected LithiumBlockEntityOptimizations(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
@@ -39,12 +39,12 @@ public abstract class LithiumBlockEntityOptimizations extends LockableContainerB
     }
 
     @Override
-    public BlockEntityTickInvoker lithium$getSleepingTicker() {
+    public TickingBlockEntity lithium$getSleepingTicker() {
         return this.sleepingTicker;
     }
 
     @Override
-    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(TickingBlockEntity sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 
@@ -64,8 +64,8 @@ public abstract class LithiumBlockEntityOptimizations extends LockableContainerB
     }
 
     @Override
-    public void setWorld(World world) {
-        super.setWorld(world);
+    public void setLevel(Level world) {
+        super.setLevel(world);
         lithium$startSleeping();
     }
 }

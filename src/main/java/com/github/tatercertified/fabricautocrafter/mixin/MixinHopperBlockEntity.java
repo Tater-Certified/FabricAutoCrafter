@@ -1,10 +1,10 @@
-package com.github.tatercertified.fabricautocrafter.mixin;// Created 2022-23-01T13:20:09
+package com.github.tatercertified.fabricautocrafter.mixin;
 
-import net.minecraft.block.entity.Hopper;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.entity.Hopper;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,14 +25,14 @@ public abstract class MixinHopperBlockEntity {
      * Stub
      */
     @Shadow
-    private static boolean canExtract(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing) {
+    private static boolean canTakeItemFromContainer(Container into, Container from, ItemStack itemStack, int slot, Direction direction) {
         return Math.random() > .5d;
     }
 
     /**
      * Redirects the canExtract check to check if the stack can be inserted after checking if it can be extracted.
      * <p>
-     * This should be side-effect free for vanilla stuff; the only things that would be effected would be stuff
+     * This should be side effect free for vanilla stuff; the only things that would be effected would be stuff
      * that does special logic on removal of a certain slot, like in the case of the automatic crafting table.
      * <p>
      * There's probably a better way, but it doesn't seem immediately obvious for an if condition.
@@ -40,11 +40,11 @@ public abstract class MixinHopperBlockEntity {
      * @author Ampflower
      * @reason Fix the hopper logic for the automatic crafting table
      */
-    @Redirect(method = "extract(Lnet/minecraft/block/entity/Hopper;Lnet/minecraft/inventory/Inventory;ILnet/minecraft/util/math/Direction;)Z",
+    @Redirect(method = "tryTakeInItemFromSlot(Lnet/minecraft/world/level/block/entity/Hopper;Lnet/minecraft/world/Container;ILnet/minecraft/core/Direction;)Z",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/block/entity/HopperBlockEntity;canExtract(Lnet/minecraft/inventory/Inventory;Lnet/minecraft/inventory/Inventory;Lnet/minecraft/item/ItemStack;ILnet/minecraft/util/math/Direction;)Z"))
-    private static boolean fabricAutoCrafter$canExtract$redirect(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing, Hopper hopper) {
-        return canExtract(hopperInventory, fromInventory, stack, slot, facing) && canInsertStack(hopper, stack);
+                    target = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;canTakeItemFromContainer(Lnet/minecraft/world/Container;Lnet/minecraft/world/Container;Lnet/minecraft/world/item/ItemStack;ILnet/minecraft/core/Direction;)Z"))
+    private static boolean fabricAutoCrafter$canExtract$redirect(Container into, Container from, ItemStack itemStack, int slot, Direction direction, Hopper hopper) {
+        return canTakeItemFromContainer(into, from, itemStack, slot, direction) && canInsertStack(hopper, itemStack);
     }
 
     /**
@@ -53,11 +53,11 @@ public abstract class MixinHopperBlockEntity {
      * @return true if the hopper can fit any amount of the stack, false otherwise.
      */
     private static boolean canInsertStack(Hopper hopper, ItemStack test) {
-        for (int i = 0, l = hopper.size(); i < l; i++) {
-            if (hopper.isValid(i, test)) {
-                var stack = hopper.getStack(i);
-                if (stack.isEmpty() || (stack.getCount() < Math.min(stack.getMaxCount(), hopper.getMaxCountPerStack())
-                        && ItemStack.areItemsAndComponentsEqual(stack, test))) return true;
+        for (int i = 0, l = hopper.getContainerSize(); i < l; i++) {
+            if (hopper.canPlaceItem(i, test)) {
+                var stack = hopper.getItem(i);
+                if (stack.isEmpty() || (stack.getCount() < Math.min(stack.getMaxStackSize(), hopper.getMaxStackSize())
+                        && ItemStack.isSameItemSameComponents(stack, test))) return true;
             }
         }
         return false;

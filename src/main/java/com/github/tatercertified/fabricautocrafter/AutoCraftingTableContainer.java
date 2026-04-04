@@ -1,35 +1,36 @@
 package com.github.tatercertified.fabricautocrafter;
 
-import com.github.tatercertified.fabricautocrafter.mixin.AccessorScreenHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.recipe.*;
-import net.minecraft.screen.CraftingScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
+import com.github.tatercertified.fabricautocrafter.mixin.AccessorAbstractContainerMenu;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.StackedItemContents;
+import net.minecraft.world.inventory.RecipeCraftingHolder;
+import net.minecraft.world.inventory.TransientCraftingContainer;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 
-public class AutoCraftingTableContainer extends CraftingScreenHandler {
+public class AutoCraftingTableContainer extends CraftingMenu {
     private final AutoCraftingTableBlockEntity blockEntity;
-    private final PlayerEntity player;
-    private CraftingInventory crafting_inv;
+    private final Player player;
+    private TransientCraftingContainer crafting_inv;
 
-    AutoCraftingTableContainer(int id, PlayerInventory playerInventory, AutoCraftingTableBlockEntity blockEntity) {
+    AutoCraftingTableContainer(int id, Inventory playerInventory, AutoCraftingTableBlockEntity blockEntity) {
         super(id, playerInventory);
         this.blockEntity = blockEntity;
         this.player = playerInventory.player;
 
         this.crafting_inv = blockEntity.bindInventory(this);
 
-        var self = (AccessorScreenHandler) this;
+        var self = (AccessorAbstractContainerMenu) this;
         slots.clear();
-        self.getTrackedStacks().clear();
+        self.getLastSlots().clear();
 
         this.addSlot(new OutputSlot(this.blockEntity, this.player));
 
@@ -51,86 +52,86 @@ public class AutoCraftingTableContainer extends CraftingScreenHandler {
     }
 
     @Override
-    public void onContentChanged(Inventory inv) {
-        if (this.player instanceof ServerPlayerEntity) {
-            ServerPlayNetworkHandler netHandler = ((ServerPlayerEntity) this.player).networkHandler;
-            netHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(this.syncId, 0, 0, this.blockEntity.getStack(0)));
+    public void slotsChanged(Container inv) {
+        if (this.player instanceof ServerPlayer) {
+            ServerGamePacketListenerImpl netHandler = ((ServerPlayer) this.player).connection;
+            netHandler.send(new ClientboundContainerSetSlotPacket(this.containerId, 0, 0, this.blockEntity.getItem(0)));
         }
     }
 
     @Override
-    public ItemStack quickMove(PlayerEntity player, int slot) {
+    public ItemStack quickMoveStack(Player player, int slot) {
         if (slot == 0) {
-            ItemStack before = this.blockEntity.getStack(0).copy();
+            ItemStack before = this.blockEntity.getItem(0).copy();
             ItemStack current = before.copy();
-            if (!this.insertItem(current, 10, 46, true)) return ItemStack.EMPTY;
-            this.blockEntity.removeStack(0, before.getCount() - current.getCount());
-            slots.getFirst().onQuickTransfer(current, before); // calls onCrafted if different
-            return this.blockEntity.getStack(0);
+            if (!this.moveItemStackTo(current, 10, 46, true)) return ItemStack.EMPTY;
+            this.blockEntity.removeItem(0, before.getCount() - current.getCount());
+            slots.getFirst().onQuickCraft(current, before); // calls onCrafted if different
+            return this.blockEntity.getItem(0);
         }
-        return super.quickMove(player, slot);
+        return super.quickMoveStack(player, slot);
     }
 
     public void close() {
         this.crafting_inv = blockEntity.unsetHandler();
-        ItemStack cursorStack = this.player.currentScreenHandler.getCursorStack();
+        ItemStack cursorStack = this.player.containerMenu.getCarried();
         if (!cursorStack.isEmpty()) {
-            this.player.dropItem(cursorStack, false);
-            this.player.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
+            this.player.drop(cursorStack, false);
+            this.player.containerMenu.setCarried(ItemStack.EMPTY);
         }
-        if (this.player instanceof ServerPlayerEntity serverPlayer) {
-            serverPlayer.closeHandledScreen();
+        if (this.player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.closeContainer();
         }
     }
 
     @Override
-    public void populateRecipeFinder(RecipeFinder finder) {
-        this.crafting_inv.provideRecipeInputs(finder);
+    public void fillCraftSlotsStackedContents(StackedItemContents finder) {
+        this.crafting_inv.fillStackedContents(finder);
     }
 
     @Override
-    public int getWidth() {
+    public int getGridWidth() {
         return this.crafting_inv.getWidth();
     }
 
     @Override
-    public int getHeight() {
+    public int getGridHeight() {
         return this.crafting_inv.getHeight();
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
-        return this.blockEntity.canPlayerUse(player);
+    public boolean stillValid(Player player) {
+        return this.blockEntity.stillValid(player);
     }
 
     private class OutputSlot extends Slot {
-        private final PlayerEntity player;
-        OutputSlot(Inventory inv, PlayerEntity player) {
+        private final Player player;
+        OutputSlot(Container inv, Player player) {
             super(inv, 0, 124, 35);
             this.player = player;
         }
 
         @Override
-        public boolean canInsert(ItemStack itemStack_1) {
+        public boolean mayPlace(ItemStack itemStack_1) {
             return false;
         }
 
         @Override
-        protected void onTake(int amount) {
-            AutoCraftingTableContainer.this.blockEntity.removeStack(0, amount);
+        protected void onSwapCraft(int amount) {
+            AutoCraftingTableContainer.this.blockEntity.removeItem(0, amount);
         }
 
         @Override
-        protected void onCrafted(ItemStack stack, int amount) {
-            super.onCrafted(stack); // from CraftingResultsSlot onCrafted
-            if (amount > 0) stack.onCraftByPlayer(this.player, amount);
-            if (this.inventory instanceof RecipeUnlocker) ((RecipeUnlocker)this.inventory).unlockLastRecipe(this.player, List.of(stack));
+        protected void onQuickCraft(ItemStack stack, int amount) {
+            super.checkTakeAchievements(stack); // from CraftingResultsSlot onCrafted
+            if (amount > 0) stack.onCraftedBy(this.player, amount);
+            if (this.container instanceof RecipeCraftingHolder) ((RecipeCraftingHolder)this.container).awardUsedRecipes(this.player, List.of(stack));
         }
 
         @Override
-        public void onTakeItem(PlayerEntity player, ItemStack stack) {
-            onCrafted(stack, stack.getCount());
-            super.onTakeItem(player, stack);
+        public void onTake(Player player, ItemStack stack) {
+            onQuickCraft(stack, stack.getCount());
+            super.onTake(player, stack);
         }
     }
 }
