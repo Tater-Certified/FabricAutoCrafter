@@ -1,5 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -22,9 +22,9 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     implementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-    implementation(include("eu.pb4:polymer-core:0.16.0+26.1.1"))
-    implementation(include("xyz.nucleoid:server-translations-api:3.0.1+26.1"))
-    implementation("maven.modrinth:lithium:mc26.1.1-0.23.0-fabric")
+    implementation(include("eu.pb4:polymer-core:0.17.0+26.2-rc-2"))
+    implementation(include("xyz.nucleoid:server-translations-api:3.1.0+26.2"))
+    implementation("maven.modrinth:lithium:mc26.2-0.25.0-fabric")
     include(implementation("com.moulberry:mixinconstraints:1.0.8"))
 }
 
