@@ -1,6 +1,7 @@
 package com.github.tatercertified.fabricautocrafter;
 
 import com.github.tatercertified.fabricautocrafter.mixin.AccessorAbstractContainerMenu;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.StackedItemContents;
@@ -76,7 +77,7 @@ public class AutoCraftingTableContainer extends CraftingMenu {
         this.crafting_inv = blockEntity.unsetHandler();
         ItemStack cursorStack = this.player.containerMenu.getCarried();
         if (!cursorStack.isEmpty()) {
-            this.player.drop(cursorStack, false);
+            this.player.drop(cursorStack, false, Prediction.SERVER_ONLY);
             this.player.containerMenu.setCarried(ItemStack.EMPTY);
         }
         if (this.player instanceof ServerPlayer serverPlayer) {
